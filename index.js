@@ -24,27 +24,61 @@ function init() {
         type: "input",
         message: "What is your GitHub username?",
         name: "username",
-        //validate:
+        validate: async (input) => {
+          if (input == "") {
+            return "Please provide a valid username.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "input",
         message: "What is your email?",
         name: "email",
+        validate: async (input) => {
+          if (input == "" || !input.includes("@")) {
+            return "Please provide a valid email address.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "input",
         message: "What is the URL of your project?",
         name: "projectURL",
+        validate: async (input) => {
+          if (input == "" || !input.includes("http")) {
+            return "Please provide a valid link.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "input",
         message: "What is your project's name?",
         name: "projectName",
+        validate: async (input) => {
+          if (input == "") {
+            return "Please provide a valid project name.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "input",
         message: "Please write a short description of your project:",
         name: "description",
+        validate: async (input) => {
+          if (input == "") {
+            return "Please provide a valid description.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "list",
@@ -56,22 +90,50 @@ function init() {
         type: "input",
         message: "What command should be run to install dependencies?",
         name: "dependencies",
+        validate: async (input) => {
+          if (input == "") {
+            return "Please provide a valid command.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "input",
         message: "What command should be run to run tests?",
         name: "tests",
+        validate: async (input) => {
+          if (input == "") {
+            return "Please provide a valid command.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "input",
         message: "What does the user need to know about using the repo?",
         name: "usage",
+        validate: async (input) => {
+          if (input == "") {
+            return "Please provide a valid description.";
+          } else {
+            return true;
+          }
+        },
       },
       {
         type: "input",
         message:
           "What does the user need to know about contributing to the repo?",
         name: "contributing",
+        validate: async (input) => {
+          if (input == "") {
+            return "Please provide a valid description.";
+          } else {
+            return true;
+          }
+        },
       },
     ])
     .then((answers) => {
@@ -85,10 +147,11 @@ function init() {
         //console.log("PROFILE " + profilePicURL);
 
         // Create the README outline and add the user inputted values
-        const data = `
-        ${answers.projectName} 
+        const data = `# ${answers.projectName}
         \n ## Description 
         \n ${answers.description} 
+        \n 
+        \n [View Deployed Project](${answers.projectURL})
         
         \n ## Table of Contents 
         \n * [Installation](#installation) 
@@ -112,7 +175,11 @@ function init() {
 
         \n ## Questions
         \n If you have any questions, feel free to reach out! 
-        \n ![Profile User](${profilePicURL})`;
+        \n <img src="${profilePicURL}" width="100">
+        \n Email: ${answers.email} 
+        `;
+
+        //![Profile User](${profilePicURL})
 
         // Determine the URL for the license
         if (`${answers.license}` == "MIT") {
