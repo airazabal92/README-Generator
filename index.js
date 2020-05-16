@@ -46,18 +46,6 @@ function init() {
       },
       {
         type: "input",
-        message: "What is the URL of your project?",
-        name: "projectURL",
-        validate: async (input) => {
-          if (input == "" || !input.includes("http")) {
-            return "Please provide a valid link.";
-          } else {
-            return true;
-          }
-        },
-      },
-      {
-        type: "input",
         message: "What is your project's name?",
         name: "projectName",
         validate: async (input) => {
@@ -138,20 +126,23 @@ function init() {
     ])
     .then((answers) => {
       let queryURL = `https://api.github.com/users/${answers.username}`;
-      console.log("QUERY " + queryURL);
 
       // Call GitHub API to get the user's profile picture
       axios.get(queryURL).then((gitHubData) => {
         profilePicURL = gitHubData.data.avatar_url;
-        //console.log(gitHubData);
-        //console.log("PROFILE " + profilePicURL);
+
+        // Generate project URL
+        const projectURL = generateProjectUrl(
+          `${answers.username}`,
+          `${answers.projectName}`
+        );
 
         // Create the README outline and add the user inputted values
-        const data = `# ${answers.projectName}
+        const data = `\n# ${answers.projectName}
         \n ## Description 
-        \n ${answers.description} 
+        \n${answers.description} 
         \n 
-        \n [View Deployed Project](${answers.projectURL})
+        \n [View Deployed Project](${projectURL})
         
         \n ## Table of Contents 
         \n * [Installation](#installation) 
@@ -179,8 +170,6 @@ function init() {
         \n Email: ${answers.email} 
         `;
 
-        //![Profile User](${profilePicURL})
-
         // Determine the URL for the license
         if (`${answers.license}` == "MIT") {
           licenseURL =
@@ -204,11 +193,18 @@ function init() {
         \n Licensed under the [${answers.license}](${licenseURL}) license.`;
         }
 
+        // Render license badge
+        const badge = renderLicenseBadge(
+          `${answers.license}`,
+          `${answers.name}`,
+          `${answers.projectName}`
+        );
+
         // Add the data with the license info
-        const finalData = data + licenseIncluded;
+        const finalData = badge + data + licenseIncluded;
 
         // Call the function to write the data to the README.MD file
-        writeToFile("test.md", finalData);
+        writeToFile("README.md", finalData);
       });
     })
     .catch((error) => {
@@ -225,7 +221,20 @@ function writeToFile(fileName, data) {
       console.log(error);
     }
   });
-  console.log(data);
+}
+
+// Generate the license badge for this project
+function renderLicenseBadge(license) {
+  if (license !== "None") {
+    return `[![GitHub license](https://img.shields.io/badge/license-${license}-blue.svg)]`;
+  }
+  return "";
+}
+
+// Generate the project URL
+function generateProjectUrl(github, title) {
+  const kebabCaseTitle = title.toLowerCase().split(" ").join("-");
+  return `https://github.com/${github}/${kebabCaseTitle}`;
 }
 
 init();
